@@ -68,9 +68,9 @@ namespace MyBookStore.MyRepository
                 command.Parameters.Add(authorParam);
                 SqliteParameter categoryParam = new SqliteParameter("@category", bookModel.Category);
                 command.Parameters.Add(categoryParam);
-                SqliteParameter quantityParam = new SqliteParameter("@quantity", bookModel.Quantity.ToString());
+                SqliteParameter quantityParam = new SqliteParameter("@quantity", bookModel.Quantity);
                 command.Parameters.Add(quantityParam);
-                SqliteParameter priceParam = new SqliteParameter("@price", bookModel.Price.ToString());
+                SqliteParameter priceParam = new SqliteParameter("@price", bookModel.Price);
                 command.Parameters.Add(priceParam);
                 command.ExecuteNonQuery();
             }
@@ -85,7 +85,7 @@ namespace MyBookStore.MyRepository
                 connection.Open();
                 string sqlExpression = @"SELECT book_id, title, description, price, quantity,
                                          (SELECT name from authors WHERE author_id=author) AS author,
-                                         (SELECT name from categories WHERE category_id=author) AS category
+                                         (SELECT name from categories WHERE category_id=category) AS category
                                          FROM books ORDER BY book_id DESC";
                 SqliteCommand command = new SqliteCommand(sqlExpression, connection);
 
@@ -158,6 +158,7 @@ namespace MyBookStore.MyRepository
                                          VALUES (@name)";
                 SqliteCommand command = new SqliteCommand(sqlExpression, connection);
                 SqliteParameter titleParam = new SqliteParameter("@name", categoryModel.CategoryName);
+                command.Parameters.Add(titleParam);
                 command.ExecuteNonQuery();
             }
         }
@@ -259,6 +260,7 @@ namespace MyBookStore.MyRepository
                                          VALUES (@name)";
                 SqliteCommand command = new SqliteCommand(sqlExpression, connection);
                 SqliteParameter titleParam = new SqliteParameter("@name", authorModel.AuthorName);
+                command.Parameters.Add(titleParam);
                 command.ExecuteNonQuery();
             }
         }

@@ -28,7 +28,6 @@ namespace MyBookStore.Presenters
             this.view.SaveEvent += SaveBook;
             this.view.CancelEvent += CancelAction;
             this.view.SetBookListBindingSource(bookBindingSource);
-            LoadAllBookList();
             this.view.Show();
         }
 
@@ -47,18 +46,14 @@ namespace MyBookStore.Presenters
         }
         private void AddNewBook(object sender, EventArgs e)
         {
-            List<string> fields = new List<string>();
             foreach (var field in repository.GetAllCategories())
             {
-                fields.Add(field.ToStr());
+                view.Category.Items.Add(field.ToStr());
             }
-            view.Category.DataSource = fields;
-            List<string> authors = new List<string>();
             foreach (var field in repository.GetAllAuthors())
             {
-                authors.Add(field.ToStr());
+                view.Author.Items.Add(field.ToStr());
             }
-            view.Author.DataSource = authors;
             view.IsEdit = false;
         }
         private void LoadSelectedBookToEdit(object sender, EventArgs e)
@@ -97,38 +92,39 @@ namespace MyBookStore.Presenters
             model.BookId = int.TryParse(view.Id, out _) ? Convert.ToInt32(view.Id) : 0;
             model.Title = view.BookTitle;
             model.Description = view.Description;
-            model.Category = view.Category.SelectedItem.ToString();
-            model.Author = view.Author.SelectedItem.ToString();
-            model.Price = int.TryParse(view.Price, out _) ? Convert.ToInt32(view.Id) : 0;
+            model.Category = (string)view.Category.SelectedItem;
+            model.Author = (string)view.Author.SelectedItem;
+            model.Price = int.TryParse(view.Price, out _) ? Convert.ToInt32(view.Price) : 0;
             model.Quantity = Convert.ToInt32(view.Quantity);
             try
             {
-                if (!repository.GetUser(UserData.user).IsAdmin)
+                if (repository.GetUser(UserData.user).IsAdmin)
                 {
-                    view.Message = "Вы не администратор";
+                    if (view.IsEdit)
+                    {
+                        repository.EditBook(model);
+                        view.Message = "Книга изменена успешно";
+                    }
+                    else
+                    {
+                        repository.AddBook(model);
+                        view.Message = "Книга добавлена успешно";
+                    }
+                    view.IsSuccessful = true;
                     LoadAllBookList();
                     CleanviewFields();
-                    return;
                 }
-                if (view.IsEdit)
+                else
                 {
-                    repository.EditBook(model);
-                    view.Message = "Книга изменена успешно";
+                    view.Message = "Вы не администратор";
                 }
-                else 
-                {
-                    repository.AddBook(model);
-                    view.Message = "Книга добавлена успешно";
-                }
-                view.IsSuccessful = true;
-                LoadAllBookList();
-                CleanviewFields();
             }
             catch (Exception ex)
             {
                 view.IsSuccessful = false;
                 view.Message = ex.Message;
             }
+            
         }
 
         private void CleanviewFields()
@@ -167,6 +163,15 @@ namespace MyBookStore.Presenters
                 view.IsSuccessful = false;
                 view.Message = "Ошибка. Книга не удалена";
             }
+        }
+        static BookPresenter instance;
+        public static void CreateOnce(IBookView view, IRepository repository)
+        {
+            if (instance == null)
+            {
+                instance = new BookPresenter(view, repository);
+            }
+           instance.LoadAllBookList();
         }
     }
 }

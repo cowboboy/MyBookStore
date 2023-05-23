@@ -44,5 +44,14 @@ namespace MyBookStore.Presenters
                 this.view.Message = "Неверный логин или пароль";
             }
         }
+
+        static LoginPresenter instance;
+        public static void CreateOnce(ILoginView view, IRepository repository)
+        {
+            if (instance == null)
+            {
+                instance = new LoginPresenter(view, repository);
+            }
+        }
     }
 }

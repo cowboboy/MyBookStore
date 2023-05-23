@@ -75,8 +75,8 @@ namespace MyBookStore.Views
 
         public string Id
         {
-            get { return txtTitle.Text; }
-            set { txtTitle.Text = value; }
+            get { return txtId.Text; }
+            set { txtId.Text = value; }
         }
 
         public string CategoryTitle

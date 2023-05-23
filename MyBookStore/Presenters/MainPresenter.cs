@@ -28,28 +28,28 @@ namespace MyBookStore.Presenters
         {
             ILoginView view = LoginView.GetInstace((MainView)mainView);
             IRepository repository = new Repository(sqlConnectionString);
-            new LoginPresenter(view, repository);
+            LoginPresenter.CreateOnce(view, repository);
         }
 
         private void ShowBooksView(object sender, EventArgs e)
         {
             IBookView view = BookView.GetInstace((MainView)mainView);
             IRepository repository = new Repository(sqlConnectionString);
-            new BookPresenter(view, repository);
+            BookPresenter.CreateOnce(view, repository);
         }
 
         private void ShowCategoriesView(object sender, EventArgs e)
         {
             ICategoryView view = CategoryView.GetInstace((MainView)mainView);
             IRepository repository = new Repository(sqlConnectionString);
-            new CategoryPresenter(view, repository);
+            CategoryPresenter.CreateOnce(view, repository);
         }
 
         private void ShowAuthorsView(object sender, EventArgs e)
         {
             IAuthorView view = AuthorView.GetInstace((MainView)mainView);
             IRepository repository = new Repository(sqlConnectionString);
-            new AuthorPresenter(view, repository);
+            AuthorPresenter.CreateOnce(view, repository);
         }
     }
 }

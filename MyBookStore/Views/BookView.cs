@@ -42,7 +42,7 @@ namespace MyBookStore.Views
                 EditEvent?.Invoke(this, EventArgs.Empty);
                 tabControl.TabPages.Remove(tabPageBookList);
                 tabControl.TabPages.Add(tabPageBookDetail);
-                tabPageBookDetail.Text = "Edit book";
+                tabPageBookDetail.Text = "Редактирование книги";
             };
             buttonSave.Click += delegate
             {

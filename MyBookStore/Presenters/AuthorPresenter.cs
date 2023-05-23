@@ -13,12 +13,12 @@ namespace MyBookStore.Presenters
     {
         private IAuthorView view;
         private IRepository repository;
-        private BindingSource bookBindingSource;
-        private IEnumerable<AuthorModel> bookList;
+        private BindingSource authorBindingSource;
+        private IEnumerable<AuthorModel> authorList;
 
         public AuthorPresenter(IAuthorView view, IRepository repository)
         {
-            this.bookBindingSource = new BindingSource();
+            this.authorBindingSource = new BindingSource();
             this.view = view;
             this.repository = repository;
             this.view.SearchEvent += SearchAuthor;
@@ -27,23 +27,23 @@ namespace MyBookStore.Presenters
             this.view.DeleteEvent += DeleteSelectedAuthor;
             this.view.SaveEvent += SaveAuthor;
             this.view.CancelEvent += CancelAction;
-            this.view.SetBookListBindingSource(bookBindingSource);
+            this.view.SetBookListBindingSource(authorBindingSource);
             LoadAllAuthorList();
             this.view.Show();
         }
 
         private void LoadAllAuthorList()
         {
-            bookList = repository.GetAllAuthors();
-            bookBindingSource.DataSource = bookList;
+            authorList = repository.GetAllAuthors();
+            authorBindingSource.DataSource = authorList;
         }
         private void SearchAuthor(object sender, EventArgs e)
         {
             bool emptyValue = string.IsNullOrWhiteSpace(this.view.SearchValue);
             if (emptyValue == false)
-                bookList = repository.GetAuthorByValue(this.view.SearchValue);
-            else bookList = repository.GetAllAuthors();
-            bookBindingSource.DataSource = bookList;
+                authorList = repository.GetAuthorByValue(this.view.SearchValue);
+            else authorList = repository.GetAllAuthors();
+            authorBindingSource.DataSource = authorList;
         }
         private void AddNewAuthor(object sender, EventArgs e)
         {
@@ -51,7 +51,7 @@ namespace MyBookStore.Presenters
         }
         private void LoadSelectedAuthorToEdit(object sender, EventArgs e)
         {
-            var author = (AuthorModel)bookBindingSource.Current;
+            var author = (AuthorModel)authorBindingSource.Current;
             view.Id = Convert.ToString(author.AuthorId);
             view.AuthorTitle = author.AuthorName;
             view.IsEdit = true;
@@ -112,7 +112,7 @@ namespace MyBookStore.Presenters
                     CleanviewFields();
                     return;
                 }
-                var author = (AuthorModel)bookBindingSource.Current;
+                var author = (AuthorModel)authorBindingSource.Current;
                 repository.DeleteAuthor(author.AuthorId);
                 view.IsSuccessful = true;
                 view.Message = "Автор удален успешно";
@@ -122,6 +122,15 @@ namespace MyBookStore.Presenters
             {
                 view.IsSuccessful = false;
                 view.Message = "Ошибка. Автор не удален";
+            }
+        }
+
+        static AuthorPresenter instance;
+        public static void CreateOnce(IAuthorView view, IRepository repository)
+        {
+            if (instance == null)
+            {
+                instance = new AuthorPresenter(view, repository);
             }
         }
     }

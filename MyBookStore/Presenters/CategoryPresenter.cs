@@ -13,12 +13,12 @@ namespace MyBookStore.Presenters
     {
         private ICategoryView view;
         private IRepository repository;
-        private BindingSource bookBindingSource;
-        private IEnumerable<CategoryModel> bookList;
+        private BindingSource categoryBindingSource;
+        private IEnumerable<CategoryModel> categoryList;
 
         public CategoryPresenter(ICategoryView view, IRepository repository)
         {
-            this.bookBindingSource = new BindingSource();
+            this.categoryBindingSource = new BindingSource();
             this.view = view;
             this.repository = repository;
             this.view.SearchEvent += SearchBook;
@@ -27,23 +27,23 @@ namespace MyBookStore.Presenters
             this.view.DeleteEvent += DeleteSelectedBook;
             this.view.SaveEvent += SaveBook;
             this.view.CancelEvent += CancelAction;
-            this.view.SetBookListBindingSource(bookBindingSource);
+            this.view.SetBookListBindingSource(categoryBindingSource);
             LoadAllCategoryList();
             this.view.Show();
         }
 
         private void LoadAllCategoryList()
         {
-            bookList = repository.GetAllCategories();
-            bookBindingSource.DataSource = bookList;
+            categoryList = repository.GetAllCategories();
+            categoryBindingSource.DataSource = categoryList;
         }
         private void SearchBook(object sender, EventArgs e)
         {
             bool emptyValue = string.IsNullOrWhiteSpace(this.view.SearchValue);
             if (emptyValue == false)
-                bookList = repository.GetCategoryByValue(this.view.SearchValue);
-            else bookList = repository.GetAllCategories();
-            bookBindingSource.DataSource = bookList;
+                categoryList = repository.GetCategoryByValue(this.view.SearchValue);
+            else categoryList = repository.GetAllCategories();
+            categoryBindingSource.DataSource = categoryList;
         }
         private void AddNewBook(object sender, EventArgs e)
         {
@@ -51,7 +51,7 @@ namespace MyBookStore.Presenters
         }
         private void LoadSelectedBookToEdit(object sender, EventArgs e)
         {
-            var category = (CategoryModel)bookBindingSource.Current;
+            var category = (CategoryModel)categoryBindingSource.Current;
             view.Id = Convert.ToString(category.CategoryId);
             view.CategoryTitle = category.CategoryName;
             view.IsEdit = true;
@@ -112,8 +112,8 @@ namespace MyBookStore.Presenters
                     CleanviewFields();
                     return;
                 }
-                var book = (BookModel)bookBindingSource.Current;
-                repository.DeleteCategory(book.BookId);
+                var category = (CategoryModel)categoryBindingSource.Current;
+                repository.DeleteCategory(category.CategoryId);
                 view.IsSuccessful = true;
                 view.Message = "Жанр удален успешно";
                 LoadAllCategoryList();
@@ -122,6 +122,15 @@ namespace MyBookStore.Presenters
             {
                 view.IsSuccessful = false;
                 view.Message = "Ошибка. Жанр не удален";
+            }
+        }
+
+        static CategoryPresenter instance;
+        public static void CreateOnce(ICategoryView view, IRepository repository)
+        {
+            if (instance == null)
+            {
+                instance = new CategoryPresenter(view, repository);
             }
         }
     }
